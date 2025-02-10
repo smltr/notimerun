@@ -1,1 +1,3 @@
 .env
+.docker/data
+tmp
