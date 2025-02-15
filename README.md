@@ -1,4 +1,4 @@
-# frfr
+# notime.run
 
 CS2 community server browser with native-app-like performance and features.
 

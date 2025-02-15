@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>CS2 Server Browser</title>
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <script
+            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+            defer
+        ></script>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <div
+            class="server-browser"
+            x-data="{
+        selectedServer: null,
+        servers: [],
+        searchTerm: '',
+        sortBy: 'players',
+        sortDesc: true,
+        activeTab: 'internet',
+        filterMenuOpen: false,
+        filters: {
+            notFull: true,
+            notEmpty: true,
+            noPassword: true
+        },
+        filterName: '',
+        filterLatency: '> 0',
+        filterMap: 'de_dust2',
+        filterAnticheat: 'VAC',
+        refreshing: false,
+        getFilterString() {
+            let parts = [];
+            if (this.filterMap) parts.push(`map ${this.filterMap}`);
+            if (this.filters.notFull) parts.push('is not full');
+            if (this.filters.notEmpty) parts.push('is not empty');
+            if (this.filters.noPassword) parts.push('has no password');
+            return parts.join('; ');
+        },
+        filteredServers() {
+            return this.servers
+                .filter(s => {
+                    if (!s.name.toLowerCase().includes(this.searchTerm.toLowerCase())) return false;
+                    if (this.filters.notFull && s.players >= s.max_players) return false;
+                    if (this.filters.notEmpty && s.players === 0) return false;
+                    return true;
+                })
+                .sort((a, b) => this.sortDesc ?
+                    b[this.sortBy] - a[this.sortBy] :
+                    a[this.sortBy] - b[this.sortBy])
+        }
+    }"
+            x-init="
+        refreshing = true;
+        fetch('/api/servers')
+            .then(res => res.json())
+            .then(data => {
+                servers = data;
+                refreshing = false;
+            });
+
+        setInterval(() => {
+            refreshing = true;
+            fetch('/api/servers')
+                .then(res => res.json())
+                .then(data => {
+                    servers = data;
+                    refreshing = false;
+                })
+        }, 30000)
+    "
+        >
+            <div class="title-bar">
+                Counter-Strike 2 Servers
+                <button class="close-btn">×</button>
+            </div>
+
+            <div class="tabs">
+                <button
+                    :class="{ active: activeTab === 'internet' }"
+                    @click="activeTab = 'internet'"
+                >
+                    Internet
+                </button>
+                <button
+                    :class="{ active: activeTab === 'favorites' }"
+                    @click="activeTab = 'favorites'"
+                >
+                    Favorites
+                </button>
+                <button
+                    :class="{ active: activeTab === 'history' }"
+                    @click="activeTab = 'history'"
+                >
+                    History
+                </button>
+                <button
+                    :class="{ active: activeTab === 'spectate' }"
+                    @click="activeTab = 'spectate'"
+                >
+                    Spectate
+                </button>
+                <button
+                    :class="{ active: activeTab === 'lan' }"
+                    @click="activeTab = 'lan'"
+                >
+                    LAN
+                </button>
+                <button
+                    :class="{ active: activeTab === 'friends' }"
+                    @click="activeTab = 'friends'"
+                >
+                    Friends
+                </button>
+            </div>
+
+            <div class="server-list">
+                <div class="server-headers">
+                    <div
+                        class="header-pw"
+                        @click="sortBy = 'hasPassword'; sortDesc = !sortDesc"
+                    >
+                        🔒
+                    </div>
+                    <div class="header-bot">🤖</div>
+                    <div class="header-vac">🛡️</div>
+                    <div
+                        class="header-name"
+                        @click="sortBy = 'name'; sortDesc = !sortDesc"
+                    >
+                        Servers (<span
+                            x-text="filteredServers().length"
+                        ></span
+                        >)
+                    </div>
+                    <div
+                        class="header-game"
+                        @click="sortBy = 'gameType'; sortDesc = !sortDesc"
+                    >
+                        Game
+                    </div>
+                    <div
+                        class="header-players"
+                        @click="sortBy = 'players'; sortDesc = !sortDesc"
+                    >
+                        Players
+                    </div>
+                    <div
+                        class="header-map"
+                        @click="sortBy = 'map'; sortDesc = !sortDesc"
+                    >
+                        Map
+                    </div>
+                    <div
+                        class="header-ping"
+                        @click="sortBy = 'ping'; sortDesc = !sortDesc"
+                    >
+                        Latency
+                    </div>
+                </div>
+
+                <div class="server-rows">
+                    <template
+                        x-for="server in filteredServers()"
+                        :key="server.addr"
+                    >
+                        <div
+                            class="server-row"
+                            :class="{ 'selected': selectedServer === server.addr }"
+                            @click="selectedServer = server.addr"
+                        >
+                            <div class="cell-pw"></div>
+                            <div class="cell-bot"></div>
+                            <div class="cell-vac"></div>
+                            <div
+                                class="cell-name"
+                                x-text="server.name"
+                            ></div>
+                            <div class="cell-game">CS2</div>
+                            <div
+                                class="cell-players"
+                                x-text="`${server.players}/${server.max_players}`"
+                            ></div>
+                            <div
+                                class="cell-map"
+                                x-text="server.map"
+                            ></div>
+                            <div class="cell-ping">--</div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="filter-menu" x-show="filterMenuOpen">
+                <div class="filter-menu-row">
+                    <div class="filter-section">
+                        <div>Server Name</div>
+                        <input type="text" x-model="filterName" />
+                    </div>
+                    <div class="filter-section">
+                        <div>Max Latency</div>
+                        <select x-model="filterLatency">
+                            <option>Any</option>
+                            <option>50</option>
+                            <option>100</option>
+                            <option>150</option>
+                            <option>200</option>
+                        </select>
+                    </div>
+                    <div class="filter-section">
+                        <div class="filter-checkboxes">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    x-model="filters.notFull"
+                                />
+                                Server not full
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    x-model="filters.notEmpty"
+                                />
+                                Has users playing
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    x-model="filters.noPassword"
+                                />
+                                Is not password protected
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-menu-row">
+                    <div class="filter-section">
+                        <div>Map</div>
+                        <input type="text" x-model="filterMap" />
+                    </div>
+                    <div class="filter-section">
+                        <div>Anti-cheat</div>
+                        <select x-model="filterAnticheat">
+                            <option>VAC</option>
+                            <option>None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-controls">
+                <div class="filter-section">
+                    <button
+                        @click="filterMenuOpen = !filterMenuOpen"
+                        :class="{ 'active': filterMenuOpen }"
+                    >
+                        Change Filters
+                    </button>
+                    <span
+                        class="current-filters"
+                        x-text="getFilterString()"
+                    ></span>
+                </div>
+                <div class="actions">
+                    <button>Quick Refresh</button>
+                    <button>Stop Refresh</button>
+                    <button class="connect-btn">Connect</button>
+                </div>
+            </div>
+
+            <div class="status-bar" x-show="refreshing">
+                Refreshing server list...
+            </div>
+        </div>
+    </body>
+</html>
