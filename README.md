@@ -11,7 +11,7 @@ CS2 community server browser with native-app-like performance and features.
 - Rate limiting and error handling
 - Server filtering and sorting capabilities
 
-### Frontend (Svelte)
+### Frontend (HTMX + Alpine)
 - Fast, responsive UI with instant filtering and sorting
 - Real-time server status updates
 - Offline support
@@ -19,7 +19,7 @@ CS2 community server browser with native-app-like performance and features.
 - Smooth transitions and animations
 - Steam connect link integration
 
-### Planned Features
+### Possible Features
 - Server favorites/history
 - Advanced filtering (by region, map, player count, etc.)
 - Server ping information
@@ -31,6 +31,6 @@ CS2 community server browser with native-app-like performance and features.
 
 ## Technical Stack
 - Backend: Go with Gin framework
-- Frontend: Svelte
+- Frontend: HTMX + Alpine
 - API: Steam Web API
 - Development: Docker + CompileDaemon for hot reloading
