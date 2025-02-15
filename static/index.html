@@ -24,8 +24,17 @@
                     sortDesc: true,
                     activeTab: 'internet',
                     refreshing: false,
+                    searchName: '',
+                    searchMap: '',
+                    filteredServers() {
+                        return this.servers.filter(server => {
+                            const nameMatch = server.name.toLowerCase().includes(this.searchName.toLowerCase());
+                            const mapMatch = server.map.toLowerCase().includes(this.searchMap.toLowerCase());
+                            return nameMatch && mapMatch;
+                        });
+                    },
                     sortedServers() {
-                        return this.servers.sort((a, b) => this.sortDesc ?
+                        return this.filteredServers().sort((a, b) => this.sortDesc ?
                             b[this.sortBy] - a[this.sortBy] :
                             a[this.sortBy] - b[this.sortBy])
                     }
@@ -93,6 +102,9 @@
                     Friends
                 </button>
             </div>
+
+            <div class="server-list">
+                
 
             <div class="server-list">
                 <div class="server-headers">
@@ -168,8 +180,33 @@
             </div>
 
             <div class="bottom-controls">
+                <div class="filters">
+                    <div class="filter-input">
+                        <input 
+                            type="text" 
+                            x-model="searchName"
+                            placeholder="Search server names..."
+                        >
+                    </div>
+                    <div class="filter-input">
+                        <input 
+                            type="text" 
+                            x-model="searchMap"
+                            placeholder="Search maps..."
+                        >
+                    </div>
+                </div>
                 <div class="actions">
                     <button class="connect-btn" @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)">Connect</button>
+                    <button class="refresh-btn" @click="
+                        refreshing = true;
+                        fetch('/api/servers')
+                            .then(res => res.json())
+                            .then(data => {
+                                servers = data;
+                                refreshing = false;
+                            })
+                    ">Refresh</button>
                 </div>
             </div>
 

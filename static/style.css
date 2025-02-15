@@ -25,11 +25,10 @@ body {
     background: var(--steam-dark);
 }
 
-.title-bar {
-    background: var(--steam-green);
-    padding: 4px 8px;
-    display: flex;
-    justify-content: space-between;
+.server-list {
+    overflow-y: auto;
+    min-height: 0; /* Important for grid container */
+}
     align-items: center;
     color: white;
 }
@@ -62,9 +61,11 @@ body {
 }
 
 .server-list {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    overflow: auto;
-    min-height: 0; /* Important for flex container */
+    min-height: 0;
+    position: relative;
 }
 
 .server-headers {
@@ -76,6 +77,12 @@ body {
     cursor: pointer;
     position: sticky;
     top: 0;
+    z-index: 10;
+}
+
+.server-rows {
+    overflow-y: auto;
+    flex: 1;
 }
 
 .server-headers > div {
@@ -149,15 +156,29 @@ body {
 .bottom-controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px;
     background: var(--steam-header);
+    border-top: 1px solid #000;
+    flex-shrink: 0;
 }
 
-.current-filters {
+.filters {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-input input {
+    background: var(--steam-dark);
+    border: 1px solid #000;
+    color: white;
+    padding: 4px 8px;
+    width: 200px;
     font-size: 12px;
-    color: #dadada;
-    margin-left: 10px;
-    display: inline-block;
+}
+
+.filter-input input:focus {
+    outline: 1px solid var(--steam-yellow);
 }
 
 .actions {
@@ -189,6 +210,13 @@ button.active {
 .connect-btn:hover {
     background: #5a8952;
 }
+.refresh-btn {
+    background: #486078;
+}
+
+.refresh-btn:hover {
+    background: #5a7289;
+}
 
 .status-bar {
     padding: 4px 8px;
@@ -198,6 +226,9 @@ button.active {
 }
 
 input[type="checkbox"] {
+
+
+    input[type="checkbox"] {
     accent-color: var(--steam-green);
 }
 
