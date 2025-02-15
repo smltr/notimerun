@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"frfr/models"
+	"notimerun/models"
 	"sync"
 	"time"
 )

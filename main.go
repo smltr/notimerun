@@ -1,9 +1,9 @@
 package main
 
 import (
-	"frfr/cache"
-	"frfr/steam"
 	"log"
+	"notimerun/cache"
+	"notimerun/steam"
 	"time"
 
 	"github.com/gin-gonic/gin"

@@ -1,4 +1,4 @@
-module frfr
+module notimerun
 
 go 1.21.6
 

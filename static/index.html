@@ -18,43 +18,17 @@
         <div
             class="server-browser"
             x-data="{
-        selectedServer: null,
-        servers: [],
-        searchTerm: '',
-        sortBy: 'players',
-        sortDesc: true,
-        activeTab: 'internet',
-        filterMenuOpen: false,
-        filters: {
-            notFull: true,
-            notEmpty: true,
-            noPassword: true
-        },
-        filterName: '',
-        filterLatency: '> 0',
-        filterMap: 'de_dust2',
-        filterAnticheat: 'VAC',
-        refreshing: false,
-        getFilterString() {
-            let parts = [];
-            if (this.filterMap) parts.push(`map ${this.filterMap}`);
-            if (this.filters.notFull) parts.push('is not full');
-            if (this.filters.notEmpty) parts.push('is not empty');
-            if (this.filters.noPassword) parts.push('has no password');
-            return parts.join('; ');
-        },
-        filteredServers() {
-            return this.servers
-                .filter(s => {
-                    if (!s.name.toLowerCase().includes(this.searchTerm.toLowerCase())) return false;
-                    if (this.filters.notFull && s.players >= s.max_players) return false;
-                    if (this.filters.notEmpty && s.players === 0) return false;
-                    return true;
-                })
-                .sort((a, b) => this.sortDesc ?
-                    b[this.sortBy] - a[this.sortBy] :
-                    a[this.sortBy] - b[this.sortBy])
-        }
+                    selectedServer: null,
+                    servers: [],
+                    sortBy: 'players',
+                    sortDesc: true,
+                    activeTab: 'internet',
+                    refreshing: false,
+                    sortedServers() {
+                        return this.servers.sort((a, b) => this.sortDesc ?
+                            b[this.sortBy] - a[this.sortBy] :
+                            a[this.sortBy] - b[this.sortBy])
+                    }
     }"
             x-init="
         refreshing = true;
@@ -135,7 +109,7 @@
                         @click="sortBy = 'name'; sortDesc = !sortDesc"
                     >
                         Servers (<span
-                            x-text="filteredServers().length"
+                            x-text="sortedServers().length"
                         ></span
                         >)
                     </div>
@@ -157,23 +131,19 @@
                     >
                         Map
                     </div>
-                    <div
-                        class="header-ping"
-                        @click="sortBy = 'ping'; sortDesc = !sortDesc"
-                    >
-                        Latency
-                    </div>
+                    
                 </div>
 
                 <div class="server-rows">
                     <template
-                        x-for="server in filteredServers()"
+                        x-for="server in sortedServers()"
                         :key="server.addr"
                     >
                         <div
                             class="server-row"
                             :class="{ 'selected': selectedServer === server.addr }"
                             @click="selectedServer = server.addr"
+                            @dblclick="window.location.href = `steam://connect/${server.addr}`"
                         >
                             <div class="cell-pw"></div>
                             <div class="cell-bot"></div>
@@ -191,87 +161,15 @@
                                 class="cell-map"
                                 x-text="server.map"
                             ></div>
-                            <div class="cell-ping">--</div>
+                            
                         </div>
                     </template>
                 </div>
             </div>
 
-            <div class="filter-menu" x-show="filterMenuOpen">
-                <div class="filter-menu-row">
-                    <div class="filter-section">
-                        <div>Server Name</div>
-                        <input type="text" x-model="filterName" />
-                    </div>
-                    <div class="filter-section">
-                        <div>Max Latency</div>
-                        <select x-model="filterLatency">
-                            <option>Any</option>
-                            <option>50</option>
-                            <option>100</option>
-                            <option>150</option>
-                            <option>200</option>
-                        </select>
-                    </div>
-                    <div class="filter-section">
-                        <div class="filter-checkboxes">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    x-model="filters.notFull"
-                                />
-                                Server not full
-                            </label>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    x-model="filters.notEmpty"
-                                />
-                                Has users playing
-                            </label>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    x-model="filters.noPassword"
-                                />
-                                Is not password protected
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filter-menu-row">
-                    <div class="filter-section">
-                        <div>Map</div>
-                        <input type="text" x-model="filterMap" />
-                    </div>
-                    <div class="filter-section">
-                        <div>Anti-cheat</div>
-                        <select x-model="filterAnticheat">
-                            <option>VAC</option>
-                            <option>None</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             <div class="bottom-controls">
-                <div class="filter-section">
-                    <button
-                        @click="filterMenuOpen = !filterMenuOpen"
-                        :class="{ 'active': filterMenuOpen }"
-                    >
-                        Change Filters
-                    </button>
-                    <span
-                        class="current-filters"
-                        x-text="getFilterString()"
-                    ></span>
-                </div>
                 <div class="actions">
-                    <button>Quick Refresh</button>
-                    <button>Stop Refresh</button>
-                    <button class="connect-btn">Connect</button>
+                    <button class="connect-btn" @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)">Connect</button>
                 </div>
             </div>
 
