@@ -1,9 +1,9 @@
 package main
 
 import (
-	"frfr/cache"
-	"frfr/steam"
 	"log"
+	"notimerun/cache"
+	"notimerun/steam"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +31,11 @@ func main() {
 	// Setup API routes
 	r := gin.Default()
 
+	// Serve static files
+	r.Static("/static", "./static")
+	r.StaticFile("/", "./static/index.html")
+
+	// API routes
 	r.GET("/api/servers", func(c *gin.Context) {
 		servers := serverCache.GetServers()
 		c.JSON(200, servers)

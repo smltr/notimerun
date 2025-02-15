@@ -15,5 +15,5 @@ down:
 
 clean: down
 	docker compose rm -f
-	docker rmi frfr-app
+	docker rmi notimerun-app
 	sudo rm -rf tmp

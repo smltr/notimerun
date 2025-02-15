@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>CS2 Server Browser</title>
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <script
+            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+            defer
+        ></script>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <div
+            class="server-browser"
+            x-data="{
+                    selectedServer: null,
+                    servers: [],
+                    sortBy: 'players',
+                    sortDesc: true,
+                    activeTab: 'internet',
+                    refreshing: false,
+                    sortedServers() {
+                        return this.servers.sort((a, b) => this.sortDesc ?
+                            b[this.sortBy] - a[this.sortBy] :
+                            a[this.sortBy] - b[this.sortBy])
+                    }
+    }"
+            x-init="
+        refreshing = true;
+        fetch('/api/servers')
+            .then(res => res.json())
+            .then(data => {
+                servers = data;
+                refreshing = false;
+            });
+
+        setInterval(() => {
+            refreshing = true;
+            fetch('/api/servers')
+                .then(res => res.json())
+                .then(data => {
+                    servers = data;
+                    refreshing = false;
+                })
+        }, 30000)
+    "
+        >
+            <div class="title-bar">
+                Counter-Strike 2 Servers
+                <button class="close-btn">×</button>
+            </div>
+
+            <div class="tabs">
+                <button
+                    :class="{ active: activeTab === 'internet' }"
+                    @click="activeTab = 'internet'"
+                >
+                    Internet
+                </button>
+                <button
+                    :class="{ active: activeTab === 'favorites' }"
+                    @click="activeTab = 'favorites'"
+                >
+                    Favorites
+                </button>
+                <button
+                    :class="{ active: activeTab === 'history' }"
+                    @click="activeTab = 'history'"
+                >
+                    History
+                </button>
+                <button
+                    :class="{ active: activeTab === 'spectate' }"
+                    @click="activeTab = 'spectate'"
+                >
+                    Spectate
+                </button>
+                <button
+                    :class="{ active: activeTab === 'lan' }"
+                    @click="activeTab = 'lan'"
+                >
+                    LAN
+                </button>
+                <button
+                    :class="{ active: activeTab === 'friends' }"
+                    @click="activeTab = 'friends'"
+                >
+                    Friends
+                </button>
+            </div>
+
+            <div class="server-list">
+                <div class="server-headers">
+                    <div
+                        class="header-pw"
+                        @click="sortBy = 'hasPassword'; sortDesc = !sortDesc"
+                    >
+                        🔒
+                    </div>
+                    <div class="header-bot">🤖</div>
+                    <div class="header-vac">🛡️</div>
+                    <div
+                        class="header-name"
+                        @click="sortBy = 'name'; sortDesc = !sortDesc"
+                    >
+                        Servers (<span
+                            x-text="sortedServers().length"
+                        ></span
+                        >)
+                    </div>
+                    <div
+                        class="header-game"
+                        @click="sortBy = 'gameType'; sortDesc = !sortDesc"
+                    >
+                        Game
+                    </div>
+                    <div
+                        class="header-players"
+                        @click="sortBy = 'players'; sortDesc = !sortDesc"
+                    >
+                        Players
+                    </div>
+                    <div
+                        class="header-map"
+                        @click="sortBy = 'map'; sortDesc = !sortDesc"
+                    >
+                        Map
+                    </div>
+                    
+                </div>
+
+                <div class="server-rows">
+                    <template
+                        x-for="server in sortedServers()"
+                        :key="server.addr"
+                    >
+                        <div
+                            class="server-row"
+                            :class="{ 'selected': selectedServer === server.addr }"
+                            @click="selectedServer = server.addr"
+                            @dblclick="window.location.href = `steam://connect/${server.addr}`"
+                        >
+                            <div class="cell-pw"></div>
+                            <div class="cell-bot"></div>
+                            <div class="cell-vac"></div>
+                            <div
+                                class="cell-name"
+                                x-text="server.name"
+                            ></div>
+                            <div class="cell-game">CS2</div>
+                            <div
+                                class="cell-players"
+                                x-text="`${server.players}/${server.max_players}`"
+                            ></div>
+                            <div
+                                class="cell-map"
+                                x-text="server.map"
+                            ></div>
+                            
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="bottom-controls">
+                <div class="actions">
+                    <button class="connect-btn" @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)">Connect</button>
+                </div>
+            </div>
+
+            <div class="status-bar" x-show="refreshing">
+                Refreshing server list...
+            </div>
+        </div>
+    </body>
+</html>

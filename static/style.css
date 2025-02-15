@@ -1,0 +1,209 @@
+:root {
+    --steam-green: #4c5844;
+    --steam-dark: #383838;
+    --steam-light: #676767;
+    --steam-yellow: #e6c300;
+    --steam-header: #4d4d4d;
+}
+
+body {
+    font-family: Tahoma, Arial, sans-serif;
+    background: #2d2d2d;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    color: #dadada;
+}
+
+.server-browser {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: none;
+    margin: 0;
+    background: var(--steam-dark);
+}
+
+.title-bar {
+    background: var(--steam-green);
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.close-btn {
+    background: #ac3939;
+    border: 1px solid #000;
+    color: white;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.tabs {
+    display: flex;
+    background: var(--steam-header);
+}
+
+.tabs button {
+    background: none;
+    border: none;
+    color: #dadada;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.tabs button.active {
+    background: var(--steam-dark);
+    color: var(--steam-yellow);
+}
+
+.server-list {
+    flex: 1;
+    overflow: auto;
+    min-height: 0; /* Important for flex container */
+}
+
+.server-headers {
+    display: grid;
+    grid-template-columns: 30px 30px 30px 1fr 100px 100px 100px 100px;
+    background: var(--steam-header);
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+}
+
+.server-headers > div {
+    padding: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.server-row {
+    display: grid;
+    grid-template-columns: 30px 30px 30px 1fr 100px 100px 100px 100px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.server-row:hover {
+    background: var(--steam-green);
+    color: white;
+}
+
+.server-row > div {
+    padding: 6px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.server-row.selected {
+    background: var(--steam-yellow);
+    color: black;
+}
+
+.filter-menu {
+    background: var(--steam-dark);
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 15px;
+}
+
+.filter-menu-row {
+    display: flex;
+    margin-bottom: 15px;
+    gap: 20px;
+}
+
+.filter-menu-row:last-child {
+    margin-bottom: 0;
+}
+
+.filter-section {
+    flex: 1;
+}
+
+.filter-section input[type="text"],
+.filter-section select {
+    width: 100%;
+    margin-top: 5px;
+    background: var(--steam-header);
+    color: white;
+    border: 1px solid #000;
+    padding: 4px;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.bottom-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: var(--steam-header);
+}
+
+.current-filters {
+    font-size: 12px;
+    color: #dadada;
+    margin-left: 10px;
+    display: inline-block;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    background: var(--steam-green);
+    border: 1px solid #000;
+    color: white;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #5a6952;
+}
+
+button.active {
+    background: var(--steam-dark);
+    color: var(--steam-yellow);
+}
+
+.connect-btn {
+    background: #4c7844;
+}
+
+.connect-btn:hover {
+    background: #5a8952;
+}
+
+.status-bar {
+    padding: 4px 8px;
+    background: var(--steam-dark);
+    color: var(--steam-yellow);
+    font-size: 12px;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--steam-green);
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
