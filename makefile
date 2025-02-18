@@ -16,14 +16,6 @@ clean: down
 	docker rmi notimerun-app
 	sudo rm -rf tmp
 
-# Production commands
-build-prod:
-	docker build -t notimerun:prod -f Dockerfile.prod .
-
-# Test production build locally
-run-prod:
-	docker run -p 8080:8080 -e STEAM_API_KEY=${STEAM_API_KEY} notimerun:prod
-
 # Deploy to fly.io
 deploy:
 	fly deploy

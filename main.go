@@ -43,10 +43,13 @@ func main() {
 	r := gin.Default()
 
 	// Serve static files
+	// Serve static files
 	r.Static("/static", "./static")
-	r.StaticFile("/", "./static/index.html")
-	r.StaticFile("/service-worker.js", "./static/service-worker.js")
 
+	// Serve index.html for root path
+	r.GET("/", func(c *gin.Context) {
+		c.File("./static/index.html")
+	})
 	// API routes
 	r.GET("/api/servers", func(c *gin.Context) {
 		servers := serverCache.GetServers()

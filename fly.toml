@@ -5,6 +5,9 @@ primary_region = "lax"
 builder = "paketobuildpacks/builder:base"
 buildpacks = ["gcr.io/paketo-buildpacks/go"]
 
+[build.args]
+BP_KEEP_FILES = "static/*" # This tells the buildpack to keep the static directory
+
 [env]
 PORT = "8080"
 
