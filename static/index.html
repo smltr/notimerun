@@ -2,27 +2,18 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>CS2 Server Browser</title>
 
         <!-- PWA Meta Tags -->
         <meta name="theme-color" content="#4c5844" />
-        <meta
-            name="description"
-            content="Browse Counter-Strike 2 community servers"
-        />
+        <meta name="description" content="Browse Counter-Strike 2 community servers" />
         <link rel="manifest" href="/static/manifest.json" />
         <link rel="apple-touch-icon" href="/static/icon-192.png" />
 
         <!-- Scripts -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-        <script
-            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-            defer
-        ></script>
+        <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
         <!-- Styles -->
         <link rel="stylesheet" href="/static/style.css" />
@@ -40,10 +31,7 @@
                             );
                         })
                         .catch((error) => {
-                            console.log(
-                                "ServiceWorker registration failed:",
-                                error,
-                            );
+                            console.log("ServiceWorker registration failed:", error);
                         });
                 });
             }
@@ -53,27 +41,37 @@
         <div
             class="server-browser"
             x-data="{
-                    selectedServer: null,
-                    servers: [],
-                    sortBy: 'players',
-                    sortDesc: true,
-                    activeTab: 'internet',
-                    refreshing: false,
-                    searchName: '',
-                    searchMap: '',
-                    filteredServers() {
-                        return this.servers.filter(server => {
-                            const nameMatch = server.name.toLowerCase().includes(this.searchName.toLowerCase());
-                            const mapMatch = server.map.toLowerCase().includes(this.searchMap.toLowerCase());
-                            return nameMatch && mapMatch;
-                        });
-                    },
-                    sortedServers() {
-                        return this.filteredServers().sort((a, b) => this.sortDesc ?
-                            b[this.sortBy] - a[this.sortBy] :
-                            a[this.sortBy] - b[this.sortBy])
-                    }
-    }"
+                selectedServer: null,
+                servers: [],
+                sortBy: 'players',
+                sortDesc: true,
+                activeTab: 'internet',
+                refreshing: false,
+                searchName: '',
+                searchMap: '',
+                searchTags: '',
+                debouncedSearchName: '',
+                debouncedSearchMap: '',
+                debouncedSearchTags: '',
+                debounceTimeout: null,
+                debounce(fn, wait) {
+                    clearTimeout(this.debounceTimeout);
+                    this.debounceTimeout = setTimeout(fn, wait);
+                },
+                filteredServers() {
+                    return this.servers.filter(server => {
+                        const nameMatch = server.name.toLowerCase().includes(this.debouncedSearchName.toLowerCase());
+                        const mapMatch = server.map.toLowerCase().includes(this.debouncedSearchMap.toLowerCase());
+                        const tagsMatch = server.gametype.toLowerCase().includes(this.debouncedSearchTags.toLowerCase());
+                        return nameMatch && mapMatch && tagsMatch;
+                    });
+                },
+                sortedServers() {
+                    return this.filteredServers().sort((a, b) => this.sortDesc ?
+                        b[this.sortBy] - a[this.sortBy] :
+                        a[this.sortBy] - b[this.sortBy])
+                }
+            }"
             x-init="
         refreshing = true;
         fetch('/api/servers')
@@ -95,8 +93,8 @@
     "
         >
             <div class="title-bar">
-                Counter-Strike 2 Servers
-                <button class="close-btn">×</button>
+                <div>Counter-Strike 2 Servers</div>
+                <a href="https://github.com/smltr" target="_blank">made by sam</a>
             </div>
 
             <div class="tabs">
@@ -107,161 +105,179 @@
                     Internet
                 </button>
                 <button
-                    :class="{ active: activeTab === 'favorites' }"
-                    @click="activeTab = 'favorites'"
+                    :class="{ active: activeTab === 'report' }"
+                    @click="activeTab = 'report'"
                 >
-                    Favorites
-                </button>
-                <button
-                    :class="{ active: activeTab === 'history' }"
-                    @click="activeTab = 'history'"
-                >
-                    History
-                </button>
-                <button
-                    :class="{ active: activeTab === 'spectate' }"
-                    @click="activeTab = 'spectate'"
-                >
-                    Spectate
-                </button>
-                <button
-                    :class="{ active: activeTab === 'lan' }"
-                    @click="activeTab = 'lan'"
-                >
-                    LAN
-                </button>
-                <button
-                    :class="{ active: activeTab === 'friends' }"
-                    @click="activeTab = 'friends'"
-                >
-                    Friends
+                    Report Bug / Request Feature
                 </button>
             </div>
 
-            <div class="server-list">
-                <div class="server-headers">
-                    <div
-                        class="header-pw"
-                        @click="sortBy = 'hasPassword'; sortDesc = !sortDesc"
-                    >
-                        🔒
-                    </div>
-                    <div class="header-bot">🤖</div>
-                    <div class="header-vac">🛡️</div>
-                    <div
-                        class="header-name"
-                        @click="sortBy = 'name'; sortDesc = !sortDesc"
-                    >
-                        Servers (<span
-                            x-text="sortedServers().length"
-                        ></span
-                        >)
-                    </div>
-                    <div
-                        class="header-players"
-                        @click="sortBy = 'players'; sortDesc = !sortDesc"
-                    >
-                        Players
-                    </div>
-                    <div
-                        class="header-map"
-                        @click="sortBy = 'map'; sortDesc = !sortDesc"
-                    >
-                        Map
-                    </div>
-                    <div
-                        class="header-tags"
-                        @click="sortBy = 'gametype'; sortDesc = !sortDesc"
-                    >
-                        Tags
-                    </div>
-                </div>
-
-                <div class="server-rows">
-                    <template
-                        x-for="server in sortedServers()"
-                        :key="server.addr"
-                    >
+            <div x-show="activeTab === 'internet'" class="internet-tab">
+                <div class="server-list">
+                    <div class="server-headers">
                         <div
-                            class="server-row"
-                            :class="{ 'selected': selectedServer === server.addr }"
-                            @click="selectedServer = server.addr"
-                            @dblclick="window.location.href = `steam://connect/${server.addr}`"
+                            class="header-pw"
+                            @click="sortBy = 'hasPassword'; sortDesc = !sortDesc"
                         >
-                            <div class="cell-pw"></div>
-                            <div
-                                class="cell-bot"
-                                x-text="server.bots > 0 ? server.bots : ''"
-                            ></div>
-                            <div
-                                class="cell-vac"
-                                x-text="server.secure ? '●' : ''"
-                            ></div>
-                            <div
-                                class="cell-name"
-                                x-text="server.name"
-                            ></div>
-                            <div
-                                class="cell-players"
-                                x-text="`${server.players}/${server.max_players}`"
-                            ></div>
-                            <div
-                                class="cell-map"
-                                x-text="server.map"
-                            ></div>
-                            <div
-                                class="cell-tags"
-                                x-text="server.gametype"
-                            ></div>
+                            🔒
                         </div>
-                    </template>
+                        <div class="header-bot">🤖</div>
+                        <div class="header-vac">🛡️</div>
+                        <div
+                            class="header-name"
+                            @click="sortBy = 'name'; sortDesc = !sortDesc"
+                        >
+                            Servers (<span x-text="sortedServers().length"></span>)
+                        </div>
+                        <div
+                            class="header-players"
+                            @click="sortBy = 'players'; sortDesc = !sortDesc"
+                        >
+                            Players
+                        </div>
+                        <div
+                            class="header-map"
+                            @click="sortBy = 'map'; sortDesc = !sortDesc"
+                        >
+                            Map
+                        </div>
+                        <div
+                            class="header-tags"
+                            @click="sortBy = 'gametype'; sortDesc = !sortDesc"
+                        >
+                            Tags
+                        </div>
+                    </div>
+
+                    <div class="server-rows">
+                        <template x-for="server in sortedServers()" :key="server.addr">
+                            <div
+                                class="server-row"
+                                :class="{ 'selected': selectedServer === server.addr }"
+                                @click="selectedServer = server.addr"
+                                @dblclick="window.location.href = `steam://connect/${server.addr}`"
+                            >
+                                <div class="cell-pw"></div>
+                                <div
+                                    class="cell-bot"
+                                    x-text="server.bots > 0 ? server.bots : ''"
+                                ></div>
+                                <div
+                                    class="cell-vac"
+                                    x-text="server.secure ? '●' : ''"
+                                ></div>
+                                <div class="cell-name" x-text="server.name"></div>
+                                <div
+                                    class="cell-players"
+                                    x-text="`${server.players}/${server.max_players}`"
+                                ></div>
+                                <div class="cell-map" x-text="server.map"></div>
+                                <div class="cell-tags" x-text="server.gametype"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="bottom-controls">
+                    <div class="filters">
+                        <div class="filter-input">
+                            <input
+                                type="text"
+                                x-model="searchName"
+                                @input="debounce(() => debouncedSearchName = searchName, 300)"
+                                placeholder="Search server names..."
+                            />
+                        </div>
+                        <div class="filter-input">
+                            <input
+                                type="text"
+                                x-model="searchMap"
+                                @input="debounce(() => debouncedSearchMap = searchMap, 300)"
+                                placeholder="Search maps..."
+                            />
+                        </div>
+                        <div class="filter-input">
+                            <input
+                                type="text"
+                                x-model="searchTags"
+                                @input="debounce(() => debouncedSearchTags = searchTags, 300)"
+                                placeholder="Search tags..."
+                            />
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button
+                            class="connect-btn"
+                            @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)"
+                        >
+                            Connect
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bottom-controls">
-                <div class="filters">
-                    <div class="filter-input">
-                        <input
-                            type="text"
-                            x-model="searchName"
-                            placeholder="Search server names..."
-                        />
-                    </div>
-                    <div class="filter-input">
-                        <input
-                            type="text"
-                            x-model="searchMap"
-                            placeholder="Search maps..."
-                        />
-                    </div>
-                </div>
-                <div class="actions">
-                    <button
-                        class="connect-btn"
-                        @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)"
-                    >
-                        Connect
-                    </button>
-                    <button
-                        class="refresh-btn"
-                        @click="
-                        refreshing = true;
-                        fetch('/api/servers')
-                            .then(res => res.json())
-                            .then(data => {
-                                servers = data;
-                                refreshing = false;
+            <div x-show="activeTab === 'report'" class="report-section">
+                <form
+                    class="report-form"
+                    @submit.prevent="
+                        fetch('/api/report', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                type: $event.target.type.value,
+                                description: $event.target.description.value,
+                                contact: $event.target.contact.value
                             })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert('Error submitting report: ' + data.error);
+                            } else {
+                                alert('Report submitted successfully!');
+                                $event.target.reset();
+                            }
+                        })
+                        .catch(err => {
+                            alert('Error submitting report: ' + err);
+                        })
                     "
-                    >
-                        Refresh
-                    </button>
-                </div>
+                >
+                    <div class="form-group">
+                        <label for="report-type">Type:</label>
+                        <select id="report-type" name="type" required>
+                            <option value="bug">Bug Report</option>
+                            <option value="feature">Feature Request</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="report-description">Description:</label>
+                        <textarea
+                            id="report-description"
+                            name="description"
+                            placeholder="Please provide as much detail as possible..."
+                            required
+                            rows="8"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="report-contact">Contact Email (optional):</label>
+                        <input
+                            type="email"
+                            id="report-contact"
+                            name="contact"
+                            placeholder="Your email if you'd like a response"
+                        />
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </form>
             </div>
 
-            <div class="status-bar" x-show="refreshing">
-                Refreshing server list...
-            </div>
+            <div class="status-bar" x-show="refreshing">Refreshing server list...</div>
         </div>
     </body>
 </html>

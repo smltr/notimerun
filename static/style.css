@@ -6,14 +6,39 @@
     --steam-header: #4d4d4d;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Tahoma, Arial, sans-serif;
+    font-size: 16px;
     background: #2d2d2d;
     margin: 0;
     padding: 0;
     height: 100vh;
     overflow: hidden;
     color: #dadada;
+}
+
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--steam-dark);
+    padding: 8px;
+    font-size: 12px;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.title-bar a {
+    color: var(--steam-yellow);
+    text-decoration: none;
+    font-size: 11px;
+}
+
+.title-bar a:hover {
+    text-decoration: underline;
 }
 
 .server-browser {
@@ -23,7 +48,7 @@ body {
     max-width: none;
     margin: 0;
     background: var(--steam-dark);
-    overflow-x: hidden;
+    overflow: hidden; /* Change from overflow-x: hidden to just overflow: hidden */
 }
 
 .server-list {
@@ -43,6 +68,7 @@ body {
 .tabs {
     display: flex;
     background: var(--steam-header);
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .tabs button {
@@ -72,19 +98,19 @@ body {
     grid-template-columns:
         30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
         minmax(100px, 150px) minmax(100px, 500px);
-    min-width: 0; /* Add this to help prevent overflow */
     background: var(--steam-header);
     color: white;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     position: sticky;
     top: 0;
     z-index: 10;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .server-rows {
-    overflow-y: auto;
     flex: 1;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -101,7 +127,7 @@ body {
         30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
         minmax(100px, 150px) minmax(100px, 500px);
     min-width: 0; /* Add this to help prevent overflow */
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
 }
 
@@ -160,13 +186,13 @@ body {
 }
 
 .bottom-controls {
+    flex-shrink: 0;
+    background: var(--steam-header);
+    border-top: 1px solid #000;
+    padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background: var(--steam-header);
-    border-top: 1px solid #000;
-    flex-shrink: 0;
 }
 
 .filters {
@@ -180,7 +206,7 @@ body {
     color: white;
     padding: 4px 8px;
     width: 200px;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .filter-input input:focus {
@@ -228,7 +254,7 @@ button.active {
     padding: 4px 8px;
     background: var(--steam-dark);
     color: var(--steam-yellow);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 input[type="checkbox"] {
@@ -246,4 +272,84 @@ label {
 .server-row .cell-bot,
 .server-row .cell-vac {
     opacity: 0.5;
+}
+
+.report-section {
+    padding: 20px;
+    height: 100%;
+    background: var(--steam-dark); /* Add this to match theme */
+}
+
+.report-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #dadada; /* Changed from #ccc to match theme */
+    font-size: 13px; /* Added to match other text */
+}
+
+.form-group select,
+.form-group textarea,
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #444;
+    background: var(--steam-header); /* Changed to match theme */
+    color: #dadada;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.form-group textarea:focus,
+.form-group input:focus,
+.form-group select:focus {
+    outline: 1px solid var(--steam-yellow);
+}
+
+.submit-btn {
+    width: 100%;
+    background: var(--steam-green);
+    color: white;
+    border: 1px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.submit-btn:hover {
+    background: #5a6a52;
+}
+
+.internet-tab {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0; /* Important for nested flexbox scrolling */
+    overflow: hidden; /* Contain scrolling */
+}
+
+.server-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for nested flexbox scrolling */
+    overflow: hidden; /* Contain overflow */
+}
+
+.bottom-controls {
+    flex-shrink: 0; /* Prevents shrinking */
+    position: sticky;
+    bottom: 0;
+    background: var(--steam-header);
+    border-top: 1px solid #000;
 }
