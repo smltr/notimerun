@@ -1,0 +1,23 @@
+{
+  "name": "CS2 Server Browser",
+  "short_name": "CS2 Servers",
+  "description": "Browse Counter-Strike 2 community servers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2d2d2d",
+  "theme_color": "#4c5844",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

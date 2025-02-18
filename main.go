@@ -34,6 +34,7 @@ func main() {
 	// Serve static files
 	r.Static("/static", "./static")
 	r.StaticFile("/", "./static/index.html")
+	r.StaticFile("/service-worker.js", "./static/service-worker.js")
 
 	// API routes
 	r.GET("/api/servers", func(c *gin.Context) {

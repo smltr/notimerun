@@ -7,12 +7,47 @@
             content="width=device-width, initial-scale=1.0"
         />
         <title>CS2 Server Browser</title>
+
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#4c5844" />
+        <meta
+            name="description"
+            content="Browse Counter-Strike 2 community servers"
+        />
+        <link rel="manifest" href="/static/manifest.json" />
+        <link rel="apple-touch-icon" href="/static/icon-192.png" />
+
+        <!-- Scripts -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <script
             src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
             defer
         ></script>
+
+        <!-- Styles -->
         <link rel="stylesheet" href="/static/style.css" />
+
+        <!-- Service Worker Registration -->
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/static/service-worker.js")
+                        .then((registration) => {
+                            console.log(
+                                "ServiceWorker registration successful:",
+                                registration.scope,
+                            );
+                        })
+                        .catch((error) => {
+                            console.log(
+                                "ServiceWorker registration failed:",
+                                error,
+                            );
+                        });
+                });
+            }
+        </script>
     </head>
     <body>
         <div
@@ -104,9 +139,6 @@
             </div>
 
             <div class="server-list">
-                
-
-            <div class="server-list">
                 <div class="server-headers">
                     <div
                         class="header-pw"
@@ -126,12 +158,6 @@
                         >)
                     </div>
                     <div
-                        class="header-game"
-                        @click="sortBy = 'gameType'; sortDesc = !sortDesc"
-                    >
-                        Game
-                    </div>
-                    <div
                         class="header-players"
                         @click="sortBy = 'players'; sortDesc = !sortDesc"
                     >
@@ -143,7 +169,12 @@
                     >
                         Map
                     </div>
-                    
+                    <div
+                        class="header-tags"
+                        @click="sortBy = 'gametype'; sortDesc = !sortDesc"
+                    >
+                        Tags
+                    </div>
                 </div>
 
                 <div class="server-rows">
@@ -158,13 +189,18 @@
                             @dblclick="window.location.href = `steam://connect/${server.addr}`"
                         >
                             <div class="cell-pw"></div>
-                            <div class="cell-bot"></div>
-                            <div class="cell-vac"></div>
+                            <div
+                                class="cell-bot"
+                                x-text="server.bots > 0 ? server.bots : ''"
+                            ></div>
+                            <div
+                                class="cell-vac"
+                                x-text="server.secure ? '●' : ''"
+                            ></div>
                             <div
                                 class="cell-name"
                                 x-text="server.name"
                             ></div>
-                            <div class="cell-game">CS2</div>
                             <div
                                 class="cell-players"
                                 x-text="`${server.players}/${server.max_players}`"
@@ -173,7 +209,10 @@
                                 class="cell-map"
                                 x-text="server.map"
                             ></div>
-                            
+                            <div
+                                class="cell-tags"
+                                x-text="server.gametype"
+                            ></div>
                         </div>
                     </template>
                 </div>
@@ -182,23 +221,30 @@
             <div class="bottom-controls">
                 <div class="filters">
                     <div class="filter-input">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             x-model="searchName"
                             placeholder="Search server names..."
-                        >
+                        />
                     </div>
                     <div class="filter-input">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             x-model="searchMap"
                             placeholder="Search maps..."
-                        >
+                        />
                     </div>
                 </div>
                 <div class="actions">
-                    <button class="connect-btn" @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)">Connect</button>
-                    <button class="refresh-btn" @click="
+                    <button
+                        class="connect-btn"
+                        @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)"
+                    >
+                        Connect
+                    </button>
+                    <button
+                        class="refresh-btn"
+                        @click="
                         refreshing = true;
                         fetch('/api/servers')
                             .then(res => res.json())
@@ -206,7 +252,10 @@
                                 servers = data;
                                 refreshing = false;
                             })
-                    ">Refresh</button>
+                    "
+                    >
+                        Refresh
+                    </button>
                 </div>
             </div>
 

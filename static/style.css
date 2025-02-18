@@ -23,14 +23,12 @@ body {
     max-width: none;
     margin: 0;
     background: var(--steam-dark);
+    overflow-x: hidden;
 }
 
 .server-list {
     overflow-y: auto;
     min-height: 0; /* Important for grid container */
-}
-    align-items: center;
-    color: white;
 }
 
 .close-btn {
@@ -66,11 +64,15 @@ body {
     flex: 1;
     min-height: 0;
     position: relative;
+    overflow-x: hidden;
 }
 
 .server-headers {
     display: grid;
-    grid-template-columns: 30px 30px 30px 1fr 100px 100px 100px 100px;
+    grid-template-columns:
+        30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
+        minmax(100px, 150px) minmax(100px, 500px);
+    min-width: 0; /* Add this to help prevent overflow */
     background: var(--steam-header);
     color: white;
     font-size: 12px;
@@ -83,6 +85,7 @@ body {
 .server-rows {
     overflow-y: auto;
     flex: 1;
+    overflow-x: hidden;
 }
 
 .server-headers > div {
@@ -94,7 +97,10 @@ body {
 
 .server-row {
     display: grid;
-    grid-template-columns: 30px 30px 30px 1fr 100px 100px 100px 100px;
+    grid-template-columns:
+        30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
+        minmax(100px, 150px) minmax(100px, 500px);
+    min-width: 0; /* Add this to help prevent overflow */
     font-size: 12px;
     cursor: pointer;
 }
@@ -226,9 +232,6 @@ button.active {
 }
 
 input[type="checkbox"] {
-
-
-    input[type="checkbox"] {
     accent-color: var(--steam-green);
 }
 
@@ -237,4 +240,10 @@ label {
     align-items: center;
     gap: 4px;
     font-size: 12px;
+}
+
+.server-row .cell-pw,
+.server-row .cell-bot,
+.server-row .cell-vac {
+    opacity: 0.5;
 }
