@@ -138,6 +138,8 @@ body {
     min-width: 0; /* Add this to help prevent overflow */
     font-size: 13px;
     cursor: pointer;
+    contain: content;
+    will-change: transform;
 }
 
 .server-row:hover {

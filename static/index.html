@@ -208,10 +208,10 @@
                     <div
                         id="server-list"
                         class="server-rows"
+                        x-data="{ selectedServer: null }"
                         hx-get="/api/servers/list"
                         hx-trigger="load, refreshServers from:body"
-                        hx-swap="morphdom"
-                        hx-indicator=".status-bar"
+                        hx-swap="innerHTML"
                     ></div>
                 </div>
                 <div class="bottom-controls">

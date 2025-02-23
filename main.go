@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,6 +41,7 @@ func main() {
 
 	// Setup API routes
 	r := gin.Default()
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Serve static files
 	// Serve static files
@@ -77,6 +79,10 @@ func generateServerHTML(servers []models.Server) string {
 		if server.Secure {
 			secure = "●"
 		}
+		bots := ""
+		if server.Bots > 0 {
+			bots = fmt.Sprintf("%d", server.Bots)
+		}
 		html.WriteString(fmt.Sprintf(`
             <div id="%s"
                 class="server-row"
@@ -91,7 +97,7 @@ func generateServerHTML(servers []models.Server) string {
                     <span class="server-name">%s</span>
                     <span class="server-ip">%s</span>
                 </div>
-                <div class="cell-bot">%d</div>
+                <div class="cell-bot">%s</div>
                 <div class="cell-players">%s</div>
                 <div class="cell-map">%s</div>
                 <div class="cell-tags">%s</div>
@@ -104,7 +110,7 @@ func generateServerHTML(servers []models.Server) string {
 			regionCodeToString(server.Region),
 			template.HTMLEscapeString(server.Name),
 			server.Addr,
-			server.Bots,
+			bots,
 			formatPlayers(server.Players, server.MaxPlayers),
 			template.HTMLEscapeString(server.Map),
 			template.HTMLEscapeString(server.GameType),
