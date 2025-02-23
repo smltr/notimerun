@@ -98,11 +98,19 @@ body {
     overflow-x: hidden;
 }
 
-.server-headers {
+.server-headers,
+.server-row {
     display: grid;
     grid-template-columns:
-        30px 30px minmax(350px, 1fr) 65px minmax(80px, 100px)
+        30px 30px 65px minmax(350px, 1fr) 65px minmax(80px, 100px)
         minmax(120px, 170px) minmax(100px, 500px);
+}
+
+.server-row .cell-region {
+    text-align: center;
+}
+
+.server-headers {
     background: var(--steam-header);
     color: white;
     font-size: 13px;
@@ -127,21 +135,10 @@ body {
 }
 
 .server-row {
-    display: grid;
-    grid-template-columns:
-        30px 30px minmax(350px, 1fr) 65px minmax(80px, 100px)
-        minmax(120px, 170px) minmax(100px, 500px);
     min-width: 0; /* Add this to help prevent overflow */
     font-size: 13px;
     cursor: pointer;
 }
-
-/* alternating background colors for rows. helps a tad with readability left to right,
-but makes things look a bit messy */
-/* .server-row:nth-child(4n + 2),
-.server-row:nth-child(4n + 3) {
-    background: rgba(255, 255, 255, 0.04);
-} */
 
 .server-row:hover {
     background: var(--steam-green);
@@ -158,6 +155,29 @@ but makes things look a bit messy */
 .server-row.selected {
     background: var(--steam-yellow);
     color: black;
+}
+
+.cell-name {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px; /* Adds some space between name and IP */
+}
+
+.cell-name .server-name {
+    flex: 1;
+    min-width: 0; /* Allows text truncation */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cell-name .server-ip {
+    display: none;
+    opacity: 0.5;
+    flex-shrink: 0; /* Prevents IP from shrinking */
+}
+
+.server-row:hover .cell-name .server-ip {
+    display: block;
 }
 
 .filter-menu {
@@ -282,12 +302,14 @@ label {
 
 .server-row .cell-pw,
 .server-row .cell-bot,
-.server-row .cell-vac {
+.server-row .cell-vac,
+.server-row .cell-ip {
     opacity: 0.3;
 }
 
 .cell-players .max-players,
 .cell-players .zero-players,
+.server-row .cell-region,
 .server-row .cell-tags {
     opacity: 0.5;
 }
@@ -298,11 +320,16 @@ label {
     padding-right: 15px;
 }
 
+.report-section {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 1rem;
+}
+
 .report-info {
     max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
     border-radius: 8px;
 }
 
@@ -323,6 +350,32 @@ label {
 
 .info-link:hover {
     color: #7ab8ff;
+}
+
+.changelog {
+    margin-top: 1rem;
+    border-left: 2px solid var(--steam-green);
+    padding-left: 1rem;
+}
+
+.changelog-entry {
+    margin-bottom: 1.5rem;
+}
+
+.changelog-date {
+    color: var(--steam-yellow);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.changelog ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.changelog li {
+    margin: 0.3rem 0;
+    color: #dadada;
 }
 
 .internet-tab {

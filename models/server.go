@@ -34,6 +34,7 @@ type Server struct {
 	Version    string    `json:"version"`
 	Product    string    `json:"product"`
 	Region     int       `json:"region"`
+	RegionStr  string    `json:"region_str"`
 	Players    int       `json:"players"`
 	MaxPlayers int       `json:"max_players"`
 	Bots       int       `json:"bots"`

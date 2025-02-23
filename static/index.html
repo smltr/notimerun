@@ -94,7 +94,7 @@
         >
             <div class="title-bar">
                 <div>
-                    FindServers.net - Browse CS2 Community Servers
+                    FindServers.net — Browse CS2 Community Servers
                     <span class="beta-tag"> Beta!</span>
                 </div>
                 <a href="https://github.com/smltr/findservers" target="_blank"
@@ -127,12 +127,14 @@
                             🔒
                         </div>
                         <div class="header-vac">🛡️</div>
+                        <div class="header-region">Region</div>
                         <div
                             class="header-name"
                             @click="sortBy = 'name'; sortDesc = !sortDesc"
                         >
                             Servers (<span x-text="sortedServers().length"></span>)
                         </div>
+
                         <div class="header-bot">Bots</div>
                         <div
                             class="header-players"
@@ -146,6 +148,7 @@
                         >
                             Map
                         </div>
+
                         <div
                             class="header-tags"
                             @click="sortBy = 'gametype'; sortDesc = !sortDesc"
@@ -167,7 +170,11 @@
                                     class="cell-vac"
                                     x-text="server.secure ? '●' : ''"
                                 ></div>
-                                <div class="cell-name" x-text="server.name"></div>
+                                <div class="cell-region" x-text="server.region_str"></div>
+                                <div class="cell-name">
+                                    <span class="server-name" x-text="server.name"></span
+                                    ><span class="server-ip" x-text="server.addr"></span>
+                                </div>
                                 <div
                                     class="cell-bot"
                                     x-text="server.bots > 0 ? server.bots : ''"
@@ -246,6 +253,25 @@
                         </a>
                         to discuss the project, get help, or chat with other users.
                     </p>
+
+                    <h2>Changelog</h2>
+                    <div class="changelog">
+                        <div class="changelog-entry">
+                            <div class="changelog-date">2025-02-22</div>
+                            <ul>
+                                <li>
+                                    Added changelog section, links to github issues and
+                                    discord invite
+                                </li>
+                                <li>
+                                    A lot of visual changes to improve readability for the
+                                    server list
+                                </li>
+                                <li>Added country code for servers, needs debugging</li>
+                                <li>Added IP next to server name when hovering</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"findservers/models"
+	"findservers/regions"
 )
 
 type SteamClient struct {
@@ -28,7 +29,7 @@ func (c *SteamClient) FetchServers() ([]models.Server, error) {
 	maxRetries := 3
 
 	for i := 0; i < maxRetries; i++ {
-		url := fmt.Sprintf("https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=%s&filter=\\appid\\730\\dedicated\\1&limit=20000", c.apiKey)
+		url := fmt.Sprintf("https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=%s&filter=\\gamedir\\csgo\\&limit=20000", c.apiKey)
 
 		resp, err := http.Get(url)
 		if err != nil {
@@ -65,6 +66,8 @@ func (c *SteamClient) FetchServers() ([]models.Server, error) {
 		filteredServers := []models.Server{}
 		for _, server := range result.Response.Servers {
 			if !strings.HasPrefix(server.Name, "Valve Counter-Strike") {
+				region := regions.GetRegionFromIP(server.Addr)
+				server.RegionStr = region.Code // Use the existing RegionStr field
 				filteredServers = append(filteredServers, server)
 			}
 		}
