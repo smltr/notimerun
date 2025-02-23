@@ -170,7 +170,10 @@
                                     class="cell-vac"
                                     x-text="server.secure ? '●' : ''"
                                 ></div>
-                                <div class="cell-region" x-text="server.region_str"></div>
+                                <div
+                                    class="cell-region"
+                                    x-text="server.country_code"
+                                ></div>
                                 <div class="cell-name">
                                     <span class="server-name" x-text="server.name"></span
                                     ><span class="server-ip" x-text="server.addr"></span>

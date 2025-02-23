@@ -25,24 +25,26 @@ import "time"
 // },
 
 type Server struct {
-	Addr       string    `json:"addr"`
-	GamePort   int       `json:"gameport"`
-	SteamID    string    `json:"steamid"`
-	Name       string    `json:"name"`
-	AppID      int       `json:"appid"`
-	GameDir    string    `json:"gamedir"`
-	Version    string    `json:"version"`
-	Product    string    `json:"product"`
-	Region     int       `json:"region"`
-	RegionStr  string    `json:"region_str"`
-	Players    int       `json:"players"`
-	MaxPlayers int       `json:"max_players"`
-	Bots       int       `json:"bots"`
-	Map        string    `json:"map"`
-	Secure     bool      `json:"secure"`
-	Dedicated  bool      `json:"dedicated"`
-	OS         string    `json:"os"`
-	GameType   string    `json:"gametype"`
-	FirstSeen  time.Time `json:"first_seen"`
-	LastSeen   time.Time `json:"last_seen"`
+	Addr          string    `json:"addr"`
+	GamePort      int       `json:"gameport"`
+	SteamID       string    `json:"steamid"`
+	Name          string    `json:"name"`
+	AppID         int       `json:"appid"`
+	GameDir       string    `json:"gamedir"`
+	Version       string    `json:"version"`
+	Product       string    `json:"product"`
+	Region        int       `json:"region"`
+	CountryCode   string    `json:"country_code"`
+	CountryName   string    `json:"country_name"`
+	ContinentCode string    `json:"continent_code"`
+	Players       int       `json:"players"`
+	MaxPlayers    int       `json:"max_players"`
+	Bots          int       `json:"bots"`
+	Map           string    `json:"map"`
+	Secure        bool      `json:"secure"`
+	Dedicated     bool      `json:"dedicated"`
+	OS            string    `json:"os"`
+	GameType      string    `json:"gametype"`
+	FirstSeen     time.Time `json:"first_seen"`
+	LastSeen      time.Time `json:"last_seen"`
 }
