@@ -1,6 +1,6 @@
-# notime.run
+# findservers.net
 
-A fast, Steam-like server browser for Counter-Strike 2 community servers.
+A fast, Steam-like server browser for Counter-Strike 2 community servers. My hope is that a no-nonsense, ad-free tool like this will help the custom server community grow.
 
 ## Current Features
 
@@ -19,11 +19,11 @@ A fast, Steam-like server browser for Counter-Strike 2 community servers.
 - Debug logging of server data
 
 ### Frontend
-- Single-page application design
+- Single-page application design, homepage is the app
 - Alpine.js for reactive state management
 - Fast client-side sorting and filtering
 - Steam protocol integration for joining servers
-- Responsive layout matching Steam's design
+- Classic steam inspired design
 
 ## Technical Stack
 - **Backend**: Go 1.21 with Gin framework
@@ -34,22 +34,22 @@ A fast, Steam-like server browser for Counter-Strike 2 community servers.
 ## Planned Features
 - Server favorites
 - Server history
-- Spectator support
-- LAN server discovery
-- Detailed server info panel
-- Filtering by map, game type, and region
-- Server ping information
-- Advanced search options
-- Player count graphs
-- Friend integration
+- Detailed server info panel, possibly including user ping
+- More advanced filtering
+- Friend/steam integration
 
 ## Development
 
+### Lifecycle
+The current goal is to develop this app bit by bit as live software without major releases.
+
 ### Prerequisites
 - Docker and Docker Compose
-- A Steam Web API key (set in `.env`)
+- A Steam Web API key (set in `.env` as `STEAM_API_KEY`), can be obtained from [Steam Web API](https://steamcommunity.com/dev/apikey)
 
 ### Running Locally
+Local developement is containerized with Docker. Make sure Docker desktop is installed and use the following commands as listed in the `makefile`
+
 ```bash
 make dev     # Build and run with hot reloading
 make build   # Build the Docker image
@@ -57,3 +57,6 @@ make up      # Start the container
 make down    # Stop and clean up
 make clean   # Full cleanup
 ```
+
+### Deployment
+The app is currently deployed on fly.io. See fly.toml for configuration details.

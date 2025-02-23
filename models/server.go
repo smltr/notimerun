@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 //
 // Example CS2 server returned from the Steam Web API
 // {
@@ -23,21 +25,23 @@ package models
 // },
 
 type Server struct {
-	Addr       string `json:"addr"`
-	GamePort   int    `json:"gameport"`
-	SteamID    string `json:"steamid"`
-	Name       string `json:"name"`
-	AppID      int    `json:"appid"`
-	GameDir    string `json:"gamedir"`
-	Version    string `json:"version"`
-	Product    string `json:"product"`
-	Region     int    `json:"region"`
-	Players    int    `json:"players"`
-	MaxPlayers int    `json:"max_players"`
-	Bots       int    `json:"bots"`
-	Map        string `json:"map"`
-	Secure     bool   `json:"secure"`
-	Dedicated  bool   `json:"dedicated"`
-	OS         string `json:"os"`
-	GameType   string `json:"gametype"`
+	Addr       string    `json:"addr"`
+	GamePort   int       `json:"gameport"`
+	SteamID    string    `json:"steamid"`
+	Name       string    `json:"name"`
+	AppID      int       `json:"appid"`
+	GameDir    string    `json:"gamedir"`
+	Version    string    `json:"version"`
+	Product    string    `json:"product"`
+	Region     int       `json:"region"`
+	Players    int       `json:"players"`
+	MaxPlayers int       `json:"max_players"`
+	Bots       int       `json:"bots"`
+	Map        string    `json:"map"`
+	Secure     bool      `json:"secure"`
+	Dedicated  bool      `json:"dedicated"`
+	OS         string    `json:"os"`
+	GameType   string    `json:"gametype"`
+	FirstSeen  time.Time `json:"first_seen"`
+	LastSeen   time.Time `json:"last_seen"`
 }

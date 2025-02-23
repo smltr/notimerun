@@ -13,7 +13,7 @@ down:
 
 clean: down
 	docker compose rm -f
-	docker rmi notimerun-app
+	docker rmi findservers-app
 	sudo rm -rf tmp
 
 # Deploy to fly.io

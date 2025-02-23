@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>CS2 Server Browser</title>
+        <title>FindServers.net</title>
 
         <!-- PWA Meta Tags -->
         <meta name="theme-color" content="#4c5844" />
@@ -93,8 +93,13 @@
     "
         >
             <div class="title-bar">
-                <div>Counter-Strike 2 Servers</div>
-                <a href="https://github.com/smltr" target="_blank">made by sam</a>
+                <div>
+                    FindServers.net - Browse CS2 Community Servers
+                    <span class="beta-tag"> Beta!</span>
+                </div>
+                <a href="https://github.com/smltr/findservers" target="_blank"
+                    >made by sam</a
+                >
             </div>
 
             <div class="tabs">
@@ -121,7 +126,6 @@
                         >
                             🔒
                         </div>
-                        <div class="header-bot">🤖</div>
                         <div class="header-vac">🛡️</div>
                         <div
                             class="header-name"
@@ -129,6 +133,7 @@
                         >
                             Servers (<span x-text="sortedServers().length"></span>)
                         </div>
+                        <div class="header-bot">Bots</div>
                         <div
                             class="header-players"
                             @click="sortBy = 'players'; sortDesc = !sortDesc"
@@ -159,17 +164,17 @@
                             >
                                 <div class="cell-pw"></div>
                                 <div
-                                    class="cell-bot"
-                                    x-text="server.bots > 0 ? server.bots : ''"
-                                ></div>
-                                <div
                                     class="cell-vac"
                                     x-text="server.secure ? '●' : ''"
                                 ></div>
                                 <div class="cell-name" x-text="server.name"></div>
                                 <div
+                                    class="cell-bot"
+                                    x-text="server.bots > 0 ? server.bots : ''"
+                                ></div>
+                                <div
                                     class="cell-players"
-                                    x-text="`${server.players}/${server.max_players}`"
+                                    x-html="`${server.players === 0 ? '<span class=\'zero-players\'>' + server.players + '</span>' : server.players}<span class='max-players'>/${server.max_players}</span>`"
                                 ></div>
                                 <div class="cell-map" x-text="server.map"></div>
                                 <div class="cell-tags" x-text="server.gametype"></div>
@@ -216,65 +221,32 @@
             </div>
 
             <div x-show="activeTab === 'report'" class="report-section">
-                <form
-                    class="report-form"
-                    @submit.prevent="
-                        fetch('/api/report', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                type: $event.target.type.value,
-                                description: $event.target.description.value,
-                                contact: $event.target.contact.value
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.error) {
-                                alert('Error submitting report: ' + data.error);
-                            } else {
-                                alert('Report submitted successfully!');
-                                $event.target.reset();
-                            }
-                        })
-                        .catch(err => {
-                            alert('Error submitting report: ' + err);
-                        })
-                    "
-                >
-                    <div class="form-group">
-                        <label for="report-type">Type:</label>
-                        <select id="report-type" name="type" required>
-                            <option value="bug">Bug Report</option>
-                            <option value="feature">Feature Request</option>
-                        </select>
-                    </div>
+                <div class="report-info">
+                    <h2>Report Bugs or Request Features</h2>
+                    <p>
+                        If you've found a bug or have a feature request, please
+                        <a
+                            href="https://github.com/smltr/findservers/issues/new"
+                            target="_blank"
+                            class="info-link"
+                        >
+                            create a new issue on GitHub </a
+                        >.
+                    </p>
 
-                    <div class="form-group">
-                        <label for="report-description">Description:</label>
-                        <textarea
-                            id="report-description"
-                            name="description"
-                            placeholder="Please provide as much detail as possible..."
-                            required
-                            rows="8"
-                        ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="report-contact">Contact Email (optional):</label>
-                        <input
-                            type="email"
-                            id="report-contact"
-                            name="contact"
-                            placeholder="Your email if you'd like a response"
-                        />
-                    </div>
-
-                    <button type="submit" class="submit-btn">Submit Report</button>
-                </form>
+                    <h2>Join the Community</h2>
+                    <p>
+                        You can also
+                        <a
+                            href="YOUR_DISCORD_LINK_HERE"
+                            target="_blank"
+                            class="info-link"
+                        >
+                            join our Discord server
+                        </a>
+                        to discuss the project, get help, or chat with other users.
+                    </p>
+                </div>
             </div>
 
             <div class="status-bar" x-show="refreshing">Refreshing server list...</div>

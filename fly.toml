@@ -1,5 +1,5 @@
-app = "notimerun"
-primary_region = "lax"
+app = "findservers"
+primary_region = "atl"
 
 [build]
 builder = "paketobuildpacks/builder:base"

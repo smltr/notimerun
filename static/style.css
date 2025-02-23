@@ -27,14 +27,19 @@ body {
     align-items: center;
     background: var(--steam-dark);
     padding: 8px;
-    font-size: 12px;
+    font-size: 13px;
     flex-shrink: 0; /* Prevent shrinking */
 }
 
 .title-bar a {
     color: var(--steam-yellow);
     text-decoration: none;
-    font-size: 11px;
+}
+
+.title-bar .beta-tag {
+    color: var(--steam-yellow);
+    margin-left: 8px;
+    font-style: italic;
 }
 
 .title-bar a:hover {
@@ -96,8 +101,8 @@ body {
 .server-headers {
     display: grid;
     grid-template-columns:
-        30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
-        minmax(100px, 150px) minmax(100px, 500px);
+        30px 30px minmax(350px, 1fr) 65px minmax(80px, 100px)
+        minmax(120px, 170px) minmax(100px, 500px);
     background: var(--steam-header);
     color: white;
     font-size: 13px;
@@ -124,12 +129,19 @@ body {
 .server-row {
     display: grid;
     grid-template-columns:
-        30px 30px 30px minmax(350px, 1fr) minmax(80px, 100px)
-        minmax(100px, 150px) minmax(100px, 500px);
+        30px 30px minmax(350px, 1fr) 65px minmax(80px, 100px)
+        minmax(120px, 170px) minmax(100px, 500px);
     min-width: 0; /* Add this to help prevent overflow */
     font-size: 13px;
     cursor: pointer;
 }
+
+/* alternating background colors for rows. helps a tad with readability left to right,
+but makes things look a bit messy */
+/* .server-row:nth-child(4n + 2),
+.server-row:nth-child(4n + 3) {
+    background: rgba(255, 255, 255, 0.04);
+} */
 
 .server-row:hover {
     background: var(--steam-green);
@@ -271,63 +283,46 @@ label {
 .server-row .cell-pw,
 .server-row .cell-bot,
 .server-row .cell-vac {
+    opacity: 0.3;
+}
+
+.cell-players .max-players,
+.cell-players .zero-players,
+.server-row .cell-tags {
     opacity: 0.5;
 }
 
-.report-section {
-    padding: 20px;
-    height: 100%;
-    background: var(--steam-dark); /* Add this to match theme */
+.server-row .cell-bot,
+.server-headers .header-bot {
+    text-align: right;
+    padding-right: 15px;
 }
 
-.report-form {
+.report-info {
     max-width: 600px;
-    margin: 0 auto;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.report-info h2 {
+    margin-bottom: 1rem;
+    color: #fff;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #dadada; /* Changed from #ccc to match theme */
-    font-size: 13px; /* Added to match other text */
+.report-info p {
+    margin-bottom: 2rem;
+    line-height: 1.6;
 }
 
-.form-group select,
-.form-group textarea,
-.form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #444;
-    background: var(--steam-header); /* Changed to match theme */
-    color: #dadada;
-    border-radius: 4px;
-    font-size: 13px;
+.info-link {
+    color: #4a9eff;
+    text-decoration: underline;
 }
 
-.form-group textarea:focus,
-.form-group input:focus,
-.form-group select:focus {
-    outline: 1px solid var(--steam-yellow);
-}
-
-.submit-btn {
-    width: 100%;
-    background: var(--steam-green);
-    color: white;
-    border: 1px solid #000;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-}
-
-.submit-btn:hover {
-    background: #5a6a52;
+.info-link:hover {
+    color: #7ab8ff;
 }
 
 .internet-tab {

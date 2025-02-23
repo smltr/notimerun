@@ -1,4 +1,4 @@
-module notimerun
+module findservers
 
 go 1.21.6
 
