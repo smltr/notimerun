@@ -84,14 +84,15 @@ func (c *SteamClient) FetchServers() ([]models.Server, error) {
 	maxRetries := 3
 	// Try different regions to split up the results and avoid the 10k limit
 	regions := []string{
-		"\\region\\0", // US East
-		"\\region\\1", // US West
-		"\\region\\2", // South America
-		"\\region\\3", // Europe
-		"\\region\\4", // Asia
-		"\\region\\5", // Australia
-		"\\region\\6", // Middle East
-		"\\region\\7", // Africa
+		"\\region\\0",   // US East
+		"\\region\\1",   // US West
+		"\\region\\2",   // South America
+		"\\region\\3",   // Europe
+		"\\region\\4",   // Asia
+		"\\region\\5",   // Australia
+		"\\region\\6",   // Middle East
+		"\\region\\7",   // Africa
+		"\\region\\255", // Worldwide
 	}
 
 	for _, region := range regions {

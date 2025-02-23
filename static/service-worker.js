@@ -5,8 +5,8 @@ const ASSETS = [
   "/static/manifest.json",
   "/static/icon-192.png",
   "/static/icon-512.png",
-  "https://unpkg.com/htmx.org@1.9.10",
-  "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js",
+  "/static/vendor/htmx.min.js",
+  "/static/vendor/alpine.min.js",
 ];
 
 self.addEventListener("install", (event) => {
@@ -36,8 +36,6 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches
-      .match(event.request)
-      .then((response) => response || fetch(event.request)),
+    caches.match(event.request).then((response) => response || fetch(event.request)),
   );
 });

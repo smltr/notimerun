@@ -123,6 +123,7 @@ func regionCodeToString(code int) string {
 	regions := map[int]string{
 		0: "US", 1: "US", 2: "SA", 3: "EU",
 		4: "AS", 5: "AU", 6: "ME", 7: "AF",
+		255: "WD",
 	}
 	if reg, ok := regions[code]; ok {
 		return reg

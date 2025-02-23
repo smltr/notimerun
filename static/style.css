@@ -4,6 +4,7 @@
     --steam-light: #676767;
     --steam-yellow: #e6c300;
     --steam-header: #4d4d4d;
+    --steam-yellow-faded: #c6b13c;
 }
 
 * {
@@ -155,7 +156,7 @@ body {
 }
 
 .server-row.selected {
-    background: var(--steam-yellow);
+    background: var(--steam-yellow-faded);
     color: black;
 }
 
@@ -284,7 +285,7 @@ button.active {
     background: #5a7289;
 }
 
-.status-bar {
+.status-refreshing {
     padding: 4px 8px;
     color: var(--steam-yellow);
     font-size: 13px;

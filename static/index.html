@@ -12,8 +12,8 @@
         <link rel="apple-touch-icon" href="/static/icon-192.png" />
 
         <!-- Scripts -->
-        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-        <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <script src="/static/vendor/htmx.min.js"></script>
+        <script src="/static/vendor/alpine.min.js" defer></script>
 
         <!-- Styles -->
         <link rel="stylesheet" href="/static/style.css" />
@@ -101,6 +101,33 @@
                             row.style.display = ''; // Show the row if there's an error
                         }
                     });
+                },
+
+                sortServers() {
+                    const serverList = document.getElementById('server-list');
+                    const rows = Array.from(serverList.getElementsByClassName('server-row'));
+
+                    rows.sort((a, b) => {
+                        let aValue, bValue;
+
+                        if (this.sortBy === 'players') {
+                            // Extract player count from the players cell
+                            aValue = parseInt(a.querySelector('.cell-players')?.firstChild?.textContent || '0', 10);
+                            bValue = parseInt(b.querySelector('.cell-players')?.firstChild?.textContent || '0', 10);
+                        } else if (this.sortBy === 'name') {
+                            aValue = a.querySelector('.server-name')?.textContent || '';
+                            bValue = b.querySelector('.server-name')?.textContent || '';
+                        } else if (this.sortBy === 'map') {
+                            aValue = a.querySelector('.cell-map')?.textContent || '';
+                            bValue = b.querySelector('.cell-map')?.textContent || '';
+                        }
+
+                        // Apply sort direction
+                        return this.sortDesc ? (bValue - aValue) : (aValue - bValue);
+                    });
+
+                    // Reappend sorted rows
+                    rows.forEach(row => serverList.appendChild(row));
                 }
             }"
             x-init="
@@ -138,6 +165,11 @@
                 });
 
                 $watch('hideEmpty', () => filterServers());
+
+                $watch('sortBy', () => sortServers());
+                $watch('sortDesc', () => sortServers());
+
+                document.body.addEventListener('htmx:afterOnLoad', () => sortServers());
             "
         >
             <div class="title-bar">
@@ -168,18 +200,10 @@
             <div x-show="activeTab === 'internet'" class="internet-tab">
                 <div class="server-list">
                     <div class="server-headers">
-                        <div
-                            class="header-pw"
-                            @click="sortBy = 'hasPassword'; sortDesc = !sortDesc"
-                        >
-                            🔒
-                        </div>
+                        <div class="header-pw">🔒</div>
                         <div class="header-vac">🛡️</div>
                         <div class="header-region">Region</div>
-                        <div
-                            class="header-name"
-                            @click="sortBy = 'name'; sortDesc = !sortDesc"
-                        >
+                        <div class="header-name">
                             Servers (<span id="server-count">0</span>)
                         </div>
 
@@ -187,22 +211,14 @@
                         <div
                             class="header-players"
                             @click="sortBy = 'players'; sortDesc = !sortDesc"
+                            :class="{ 'sort-active': sortBy === 'players' }"
                         >
                             Players
                         </div>
-                        <div
-                            class="header-map"
-                            @click="sortBy = 'map'; sortDesc = !sortDesc"
-                        >
-                            Map
-                        </div>
 
-                        <div
-                            class="header-tags"
-                            @click="sortBy = 'gametype'; sortDesc = !sortDesc"
-                        >
-                            Tags
-                        </div>
+                        <div class="header-map">Map</div>
+
+                        <div class="header-tags">Tags</div>
                     </div>
 
                     <div
@@ -212,6 +228,7 @@
                         hx-get="/api/servers/list"
                         hx-trigger="load, refreshServers from:body"
                         hx-swap="innerHTML"
+                        hx-indicator=".status-refreshing"
                     ></div>
                 </div>
                 <div class="bottom-controls">
@@ -261,7 +278,9 @@
                     </div>
 
                     <div class="actions">
-                        <span class="status-bar htmx-indicator">Refreshing...</span>
+                        <span class="status-refreshing htmx-indicator"
+                            >Refreshing...</span
+                        >
                         <button
                             class="refresh-btn"
                             @click="htmx.trigger('#server-list', 'refreshServers')"

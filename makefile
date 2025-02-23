@@ -1,7 +1,10 @@
-dev:
+setup:
+	./scripts/setup-vendor.sh
+
+dev: setup
 	docker compose up --build
 
-devlog:
+devlog: setup
 	docker compose up --build > findservers.log 2>&1
 
 build-dev:
