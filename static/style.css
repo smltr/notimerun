@@ -284,7 +284,6 @@ button.active {
 
 .status-bar {
     padding: 4px 8px;
-    background: var(--steam-dark);
     color: var(--steam-yellow);
     font-size: 13px;
 }
@@ -400,4 +399,21 @@ label {
     bottom: 0;
     background: var(--steam-header);
     border-top: 1px solid #000;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.filter-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    cursor: pointer;
 }

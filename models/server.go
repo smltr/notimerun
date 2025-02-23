@@ -13,7 +13,7 @@ import "time"
 //     "gamedir": "csgo",
 //     "version": "1.40.6.7",
 //     "product": "cs2",
-//     "region": -1,
+//     "region": 1,
 //     "players": 0,
 //     "max_players": 32,
 //     "bots": 0,
@@ -23,6 +23,16 @@ import "time"
 //     "os": "l",
 //     "gametype": "empty,secure"
 // },
+//
+// Region codes:
+// 0 - US East
+// 1 - US West
+// 2 - South America
+// 3 - Europe
+// 4 - Asia
+// 5 - Australia
+// 6 - Middle East
+// 7 - Africa
 
 type Server struct {
 	Addr          string    `json:"addr"`
@@ -34,8 +44,6 @@ type Server struct {
 	Version       string    `json:"version"`
 	Product       string    `json:"product"`
 	Region        int       `json:"region"`
-	CountryCode   string    `json:"country_code"`
-	CountryName   string    `json:"country_name"`
 	ContinentCode string    `json:"continent_code"`
 	Players       int       `json:"players"`
 	MaxPlayers    int       `json:"max_players"`

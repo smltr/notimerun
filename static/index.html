@@ -42,7 +42,6 @@
             class="server-browser"
             x-data="{
                 selectedServer: null,
-                servers: [],
                 sortBy: 'players',
                 sortDesc: true,
                 activeTab: 'internet',
@@ -50,47 +49,96 @@
                 searchName: '',
                 searchMap: '',
                 searchTags: '',
+                searchRegion: '',
+                hideEmpty: false,
                 debouncedSearchName: '',
                 debouncedSearchMap: '',
                 debouncedSearchTags: '',
+                debouncedSearchRegion: '',
                 debounceTimeout: null,
+
+                // Debounce function for search inputs
                 debounce(fn, wait) {
                     clearTimeout(this.debounceTimeout);
                     this.debounceTimeout = setTimeout(fn, wait);
                 },
-                filteredServers() {
-                    return this.servers.filter(server => {
-                        const nameMatch = server.name.toLowerCase().includes(this.debouncedSearchName.toLowerCase());
-                        const mapMatch = server.map.toLowerCase().includes(this.debouncedSearchMap.toLowerCase());
-                        const tagsMatch = server.gametype.toLowerCase().includes(this.debouncedSearchTags.toLowerCase());
-                        return nameMatch && mapMatch && tagsMatch;
-                    });
+
+                // Check if any value in array matches any comma-separated terms
+                matchesAnyTerm(value, searchTerms) {
+                    if (!searchTerms) return true;
+                    const terms = searchTerms.toLowerCase().split(',').map(term => term.trim());
+                    return terms.some(term => value.toLowerCase().includes(term));
                 },
-                sortedServers() {
-                    return this.filteredServers().sort((a, b) => this.sortDesc ?
-                        b[this.sortBy] - a[this.sortBy] :
-                        a[this.sortBy] - b[this.sortBy])
+
+                // Filter function now works on DOM elements instead of data array
+                filterServers() {
+                    const rows = document.querySelectorAll('.server-row');
+                    rows.forEach(row => {
+                        try {
+                            const name = row.querySelector('.server-name')?.textContent || '';
+                            const map = row.querySelector('.cell-map')?.textContent || '';
+                            const tags = row.querySelector('.cell-tags')?.textContent || '';
+                            const region = row.querySelector('.cell-region')?.textContent || '';
+                            const playersElement = row.querySelector('.cell-players');
+                            let current = 0, max = 0;
+
+                            if (playersElement) {
+                                const currentPlayers = parseInt(playersElement.firstChild.textContent, 10) || 0;
+                                const maxPlayersText = playersElement.querySelector('.max-players')?.textContent || '';
+                                max = parseInt(maxPlayersText.replace('/', ''), 10) || 0;
+                                current = currentPlayers;
+                            }
+
+                            const nameMatch = this.matchesAnyTerm(name, this.debouncedSearchName);
+                            const mapMatch = this.matchesAnyTerm(map, this.debouncedSearchMap);
+                            const tagsMatch = this.matchesAnyTerm(tags, this.debouncedSearchTags);
+                            const regionMatch = this.matchesAnyTerm(region, this.debouncedSearchRegion);
+                            const emptyMatch = !this.hideEmpty || current > 0;
+
+                            row.style.display = (nameMatch && mapMatch && tagsMatch && regionMatch && emptyMatch) ? '' : 'none';
+                        } catch (e) {
+                            console.error('Error filtering row:', e);
+                            row.style.display = ''; // Show the row if there's an error
+                        }
+                    });
                 }
             }"
             x-init="
-        refreshing = true;
-        fetch('/api/servers')
-            .then(res => res.json())
-            .then(data => {
-                servers = data;
-                refreshing = false;
-            });
+                // Listen for HTMX events to update UI state
+                document.body.addEventListener('htmx:beforeRequest', () => refreshing = true);
+                document.body.addEventListener('htmx:afterRequest', () => refreshing = false);
 
-        setInterval(() => {
-            refreshing = true;
-            fetch('/api/servers')
-                .then(res => res.json())
-                .then(data => {
-                    servers = data;
-                    refreshing = false;
-                })
-        }, 30000)
-    "
+                // Watch for search input changes
+                $watch('searchName', (value) => {
+                    debounce(() => {
+                        debouncedSearchName = value;
+                        filterServers();
+                    }, 300);
+                });
+
+                $watch('searchMap', (value) => {
+                    debounce(() => {
+                        debouncedSearchMap = value;
+                        filterServers();
+                    }, 300);
+                });
+
+                $watch('searchTags', (value) => {
+                    debounce(() => {
+                        debouncedSearchTags = value;
+                        filterServers();
+                    }, 300);
+                });
+
+                $watch('searchRegion', (value) => {
+                    debounce(() => {
+                        debouncedSearchRegion = value;
+                        filterServers();
+                    }, 300);
+                });
+
+                $watch('hideEmpty', () => filterServers());
+            "
         >
             <div class="title-bar">
                 <div>
@@ -132,7 +180,7 @@
                             class="header-name"
                             @click="sortBy = 'name'; sortDesc = !sortDesc"
                         >
-                            Servers (<span x-text="sortedServers().length"></span>)
+                            Servers (<span id="server-count">0</span>)
                         </div>
 
                         <div class="header-bot">Bots</div>
@@ -157,40 +205,14 @@
                         </div>
                     </div>
 
-                    <div class="server-rows">
-                        <template x-for="server in sortedServers()" :key="server.addr">
-                            <div
-                                class="server-row"
-                                :class="{ 'selected': selectedServer === server.addr }"
-                                @click="selectedServer = server.addr"
-                                @dblclick="window.location.href = `steam://connect/${server.addr}`"
-                            >
-                                <div class="cell-pw"></div>
-                                <div
-                                    class="cell-vac"
-                                    x-text="server.secure ? '●' : ''"
-                                ></div>
-                                <div
-                                    class="cell-region"
-                                    x-text="server.country_code"
-                                ></div>
-                                <div class="cell-name">
-                                    <span class="server-name" x-text="server.name"></span
-                                    ><span class="server-ip" x-text="server.addr"></span>
-                                </div>
-                                <div
-                                    class="cell-bot"
-                                    x-text="server.bots > 0 ? server.bots : ''"
-                                ></div>
-                                <div
-                                    class="cell-players"
-                                    x-html="`${server.players === 0 ? '<span class=\'zero-players\'>' + server.players + '</span>' : server.players}<span class='max-players'>/${server.max_players}</span>`"
-                                ></div>
-                                <div class="cell-map" x-text="server.map"></div>
-                                <div class="cell-tags" x-text="server.gametype"></div>
-                            </div>
-                        </template>
-                    </div>
+                    <div
+                        id="server-list"
+                        class="server-rows"
+                        hx-get="/api/servers/list"
+                        hx-trigger="load, refreshServers from:body"
+                        hx-swap="morphdom"
+                        hx-indicator=".status-bar"
+                    ></div>
                 </div>
                 <div class="bottom-controls">
                     <div class="filters">
@@ -199,7 +221,7 @@
                                 type="text"
                                 x-model="searchName"
                                 @input="debounce(() => debouncedSearchName = searchName, 300)"
-                                placeholder="Search server names..."
+                                placeholder="Search server names (comma-separated)..."
                             />
                         </div>
                         <div class="filter-input">
@@ -207,7 +229,15 @@
                                 type="text"
                                 x-model="searchMap"
                                 @input="debounce(() => debouncedSearchMap = searchMap, 300)"
-                                placeholder="Search maps..."
+                                placeholder="Search maps (comma-separated)..."
+                            />
+                        </div>
+                        <div class="filter-input">
+                            <input
+                                type="text"
+                                x-model="searchRegion"
+                                @input="debounce(() => debouncedSearchRegion = searchRegion, 300)"
+                                placeholder="Search regions (US, EU, AS...)..."
                             />
                         </div>
                         <div class="filter-input">
@@ -215,11 +245,29 @@
                                 type="text"
                                 x-model="searchTags"
                                 @input="debounce(() => debouncedSearchTags = searchTags, 300)"
-                                placeholder="Search tags..."
+                                placeholder="Search tags (comma-separated)..."
                             />
                         </div>
+                        <div class="filter-checkbox">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    x-model="hideEmpty"
+                                    @change="filterServers()"
+                                />
+                                Hide Empty Servers
+                            </label>
+                        </div>
                     </div>
+
                     <div class="actions">
+                        <span class="status-bar htmx-indicator">Refreshing...</span>
+                        <button
+                            class="refresh-btn"
+                            @click="htmx.trigger('#server-list', 'refreshServers')"
+                        >
+                            Refresh Servers
+                        </button>
                         <button
                             class="connect-btn"
                             @click="selectedServer && (window.location.href = `steam://connect/${selectedServer}`)"
@@ -277,8 +325,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="status-bar" x-show="refreshing">Refreshing server list...</div>
         </div>
     </body>
 </html>

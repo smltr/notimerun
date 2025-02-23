@@ -68,7 +68,7 @@ func (c *ServerCache) GetServers() []models.Server {
 }
 
 func (c *ServerCache) NeedsUpdate() bool {
-	return time.Since(c.lastUpdate) > 1*time.Minute
+	return time.Since(c.lastUpdate) > 5*time.Minute
 }
 
 func (c *ServerCache) PruneInactiveServers(maxAge time.Duration) {

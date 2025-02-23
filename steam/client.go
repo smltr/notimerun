@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"findservers/geo"
 	"findservers/models"
 )
 
@@ -24,92 +23,135 @@ func NewSteamClient() *SteamClient {
 	}
 }
 
+// func logDuplicateServers(servers []models.Server) {
+// 	log.Printf("Starting duplicate analysis for %d servers", len(servers))
+
+// 	// Create a map of IP to servers
+// 	ipMap := make(map[string][]models.Server)
+
+// 	// Group servers by IP (without port)
+// 	for i, server := range servers {
+// 		if i%1000 == 0 { // Log progress every 1000 servers
+// 			log.Printf("Processing server %d of %d", i, len(servers))
+// 		}
+
+// 		ip := strings.Split(server.Addr, ":")[0]
+// 		ipMap[ip] = append(ipMap[ip], server)
+// 	}
+
+// 	log.Printf("Found %d unique IPs", len(ipMap))
+
+// 	// Set a reasonable limit for logging
+// 	duplicateCount := 0
+// 	const maxDuplicatesToLog = 100
+
+// 	// Log IPs with multiple servers
+// 	for ip, serverGroup := range ipMap {
+// 		if len(serverGroup) > 1 {
+// 			duplicateCount++
+// 			if duplicateCount > maxDuplicatesToLog {
+// 				log.Printf("Reached maximum duplicate logging limit of %d. Stopping.", maxDuplicatesToLog)
+// 				break
+// 			}
+
+// 			truncateString := func(s string, maxLen int) string {
+// 				if len(s) <= maxLen {
+// 					return s
+// 				}
+// 				return s[:maxLen-3] + "..."
+// 			}
+
+// 			log.Printf("Found %d servers with IP %s:", len(serverGroup), ip)
+// 			for _, server := range serverGroup {
+// 				log.Printf("  Name: %-50s | IP: %-21s | Bots: %2d | Players: %2d/%2d | Map: %-20s | Tags: %s",
+// 					truncateString(server.Name, 50),
+// 					server.Addr,
+// 					server.Bots,
+// 					server.Players,
+// 					server.MaxPlayers,
+// 					server.Map,
+// 					server.GameType)
+// 			}
+// 			log.Printf("---")
+// 		}
+// 	}
+
+// 	log.Printf("Finished analyzing duplicates. Found %d IPs with multiple servers", duplicateCount)
+// }
+
 func (c *SteamClient) FetchServers() ([]models.Server, error) {
-	var servers []models.Server
+	var allServers []models.Server
 	maxRetries := 3
-
-	locator, err := geo.NewLocator("GeoLite2-City.mmdb")
-	if err != nil {
-		log.Printf("Warning: Geo location disabled: %v", err)
+	// Try different regions to split up the results and avoid the 10k limit
+	regions := []string{
+		"\\region\\0", // US East
+		"\\region\\1", // US West
+		"\\region\\2", // South America
+		"\\region\\3", // Europe
+		"\\region\\4", // Asia
+		"\\region\\5", // Australia
+		"\\region\\6", // Middle East
+		"\\region\\7", // Africa
 	}
-	defer locator.Close()
 
-	for i := 0; i < maxRetries; i++ {
-		// Try both CS2 and CSGO filters
-		url := fmt.Sprintf("https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=%s&filter=\\appid\\730\\dedicated\\1\\&limit=10000", c.apiKey)
+	for _, region := range regions {
+		for i := 0; i < maxRetries; i++ {
+			// Basic filter for dedicated servers and specific region
+			url := fmt.Sprintf("https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=%s&filter=\\appid\\730\\dedicated\\1%s&limit=10000", c.apiKey, region)
 
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Printf("Attempt %d: HTTP error: %v", i+1, err)
-			continue
-		}
-
-		log.Printf("Attempt %d: Status Code: %d", i+1, resp.StatusCode)
-
-		rawBody, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
-
-		if err != nil {
-			log.Printf("Attempt %d: Body read error: %v", i+1, err)
-			continue
-		}
-
-		var result struct {
-			Response struct {
-				Servers []models.Server `json:"servers"`
-			} `json:"response"`
-		}
-
-		if err := json.Unmarshal(rawBody, &result); err != nil {
-			log.Printf("Attempt %d: JSON parse error: %v", i+1, err)
-			log.Printf("Response preview: %s", string(rawBody[:min(1000, len(rawBody))]))
-			continue
-		}
-
-		// Debug log before filtering
-		log.Printf("Before filtering - Total servers: %d", len(result.Response.Servers))
-
-		// Log some sample server data
-		for i, server := range result.Response.Servers[:min(5, len(result.Response.Servers))] {
-			log.Printf("Sample server %d: Name: %s, Product: %s, GameDir: %s, AppID: %d",
-				i, server.Name, server.Product, server.GameDir, server.AppID)
-		}
-
-		filteredServers := []models.Server{}
-		for _, server := range result.Response.Servers {
-			// Skip Valve official servers
-			if strings.HasPrefix(server.Name, "Valve Counter-Strike") {
+			resp, err := http.Get(url)
+			if err != nil {
+				log.Printf("Region %s, Attempt %d: HTTP error: %v", region, i+1, err)
 				continue
 			}
 
-			// Debug log server details
-			log.Printf("Processing server: %s, Addr: %s, Product: %s",
-				server.Name, server.Addr, server.Product)
+			log.Printf("Region %s, Attempt %d: Status Code: %d", region, i+1, resp.StatusCode)
 
-			if locator != nil {
-				if loc, err := locator.GetLocation(server.Addr); err == nil {
-					server.CountryCode = loc.Country.IsoCode
-					server.CountryName = loc.Country.Names["en"]
-					server.ContinentCode = loc.Continent.Code
-					log.Printf("Location found for %s: Country: %s", server.Addr, server.CountryCode)
-				} else {
-					log.Printf("Failed to get location for %s: %v", server.Addr, err)
-				}
+			rawBody, err := io.ReadAll(resp.Body)
+			resp.Body.Close()
+
+			if err != nil {
+				log.Printf("Region %s, Attempt %d: Body read error: %v", region, i+1, err)
+				continue
 			}
 
-			filteredServers = append(filteredServers, server)
+			var result struct {
+				Response struct {
+					Servers []models.Server `json:"servers"`
+				} `json:"response"`
+			}
+
+			if err := json.Unmarshal(rawBody, &result); err != nil {
+				log.Printf("Region %s, Attempt %d: JSON parse error: %v", region, i+1, err)
+				continue
+			}
+
+			// Filter and process servers
+			for _, server := range result.Response.Servers {
+				// Skip Valve official servers
+				if strings.HasPrefix(server.Name, "Valve Counter-Strike") {
+					continue
+				}
+
+				allServers = append(allServers, server)
+			}
+
+			// If we got servers, break the retry loop for this region
+			if len(result.Response.Servers) > 0 {
+				break
+			}
+
+			time.Sleep(time.Second * 2)
 		}
-
-		log.Printf("After filtering - Servers remaining: %d", len(filteredServers))
-
-		if len(filteredServers) > 10 {
-			return filteredServers, nil
-		}
-
-		time.Sleep(time.Second * 2)
 	}
 
-	return servers, fmt.Errorf("failed to fetch sufficient servers after %d attempts", maxRetries)
+	log.Printf("Total servers found across all regions: %d", len(allServers))
+
+	if len(allServers) > 10 {
+		return allServers, nil
+	}
+
+	return nil, fmt.Errorf("failed to fetch sufficient servers across all regions")
 }
 
 func min(a, b int) int {
