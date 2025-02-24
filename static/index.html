@@ -11,6 +11,11 @@
         <link rel="manifest" href="/static/manifest.json" />
         <link rel="apple-touch-icon" href="/static/icon-192.png" />
 
+        <!-- Preload key assets -->
+        <link rel="preload" href="/static/vendor/htmx.min.js" as="script" />
+        <link rel="preload" href="/static/vendor/alpine.min.js" as="script" />
+        <link rel="preload" href="/static/style.css" as="style" />
+
         <!-- Scripts -->
         <script src="/static/vendor/htmx.min.js"></script>
         <script src="/static/vendor/alpine.min.js" defer></script>
@@ -128,12 +133,22 @@
 
                     // Reappend sorted rows
                     rows.forEach(row => serverList.appendChild(row));
+                },
+
+                log(serverId) {
+                    console.log(`Clicked server with ID: ${serverId}`);
                 }
             }"
             x-init="
                 // Listen for HTMX events to update UI state
                 document.body.addEventListener('htmx:beforeRequest', () => refreshing = true);
                 document.body.addEventListener('htmx:afterRequest', () => refreshing = false);
+
+                document.body.addEventListener('htmx:afterSwap', (e) => {
+                    if (e.detail.target.id === 'server-list') {
+                        Alpine.initTree(e.detail.target);
+                    }
+                });
 
                 // Watch for search input changes
                 $watch('searchName', (value) => {
@@ -224,7 +239,6 @@
                     <div
                         id="server-list"
                         class="server-rows"
-                        x-data="{ selectedServer: null }"
                         hx-get="/api/servers/list"
                         hx-trigger="load, refreshServers from:body"
                         hx-swap="innerHTML"
@@ -238,7 +252,7 @@
                                 type="text"
                                 x-model="searchName"
                                 @input="debounce(() => debouncedSearchName = searchName, 300)"
-                                placeholder="Search server names (comma-separated)..."
+                                placeholder="Name (surf, dm, ...)"
                             />
                         </div>
                         <div class="filter-input">
@@ -246,7 +260,7 @@
                                 type="text"
                                 x-model="searchMap"
                                 @input="debounce(() => debouncedSearchMap = searchMap, 300)"
-                                placeholder="Search maps (comma-separated)..."
+                                placeholder="Map (de_dust2, surf, ...)"
                             />
                         </div>
                         <div class="filter-input">
@@ -254,7 +268,7 @@
                                 type="text"
                                 x-model="searchRegion"
                                 @input="debounce(() => debouncedSearchRegion = searchRegion, 300)"
-                                placeholder="Search regions (US, EU, AS...)..."
+                                placeholder="Regions (US, EU, AS...)"
                             />
                         </div>
                         <div class="filter-input">
@@ -262,7 +276,7 @@
                                 type="text"
                                 x-model="searchTags"
                                 @input="debounce(() => debouncedSearchTags = searchTags, 300)"
-                                placeholder="Search tags (comma-separated)..."
+                                placeholder="Tags (dm, 5v5, ...)"
                             />
                         </div>
                         <div class="filter-checkbox">
@@ -326,6 +340,19 @@
 
                     <h2>Changelog</h2>
                     <div class="changelog">
+                        <div class="changelog-entry">
+                            <div class="changelog-date">2025-02-23</div>
+                            <ul>
+                                <li>Server list now accurate and more comprehensive</li>
+                                <li>Default to sorting by player count</li>
+                                <li>Improved filtering</li>
+                                <li>Server select working again</li>
+                                <li>
+                                    Improved front end performance in progress, need to
+                                    revamp how servers are rendered
+                                </li>
+                            </ul>
+                        </div>
                         <div class="changelog-entry">
                             <div class="changelog-date">2025-02-22</div>
                             <ul>
